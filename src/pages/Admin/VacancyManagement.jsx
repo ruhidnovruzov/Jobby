@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { get, post, put, del } from '../../api/service';
-import { Plus, Edit2, Trash2, Loader, AlertCircle, X } from 'lucide-react';
+import { Plus, Edit2, Trash2, Loader, AlertCircle, X, Eye } from 'lucide-react';
 import AdminSidebar from '../../components/AdminSidebar';
 
 const VacancyManagement = () => {
@@ -444,6 +444,13 @@ const VacancyManagement = () => {
                               title="Redaktə Et"
                             >
                               <Edit2 className="w-5 h-5" />
+                            </button>
+                            <button
+                              onClick={() => navigate(`/admin/vacancies/${vacancy.id}`)}
+                              className="p-2 hover:bg-gray-100 rounded-lg transition-all text-gray-700"
+                              title="Bax"
+                            >
+                              <Eye className="w-5 h-5" />
                             </button>
                             <button
                               onClick={() => handleDelete(vacancy.id)}

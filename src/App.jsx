@@ -14,6 +14,7 @@ import AdminLogin from './pages/Admin/AdminLogin';
 import AdminDashboard from './pages/Admin/AdminDashboard';
 import CategoryManagement from './pages/Admin/CategoryManagement';
 import VacancyManagement from './pages/Admin/VacancyManagement';
+import VacancyId from './pages/Admin/VacancyId';
 
 
 function App() {
@@ -79,6 +80,21 @@ function App() {
               </ProtectedRoute>
             }
           />
+
+          {/* Admin - Vacancy Detail by ID */}
+          <Route
+            path="/admin/vacancies/:id"
+            element={
+              <ProtectedRoute
+                allowedRoles={['admin']}
+                requireAuth={true}
+                redirectTo="/admin-login"
+              >
+                <VacancyId />
+              </ProtectedRoute>
+            }
+          />
+          
 
           {/* 404 Route - Tapılmayan səhifələr üçün */}
           <Route
