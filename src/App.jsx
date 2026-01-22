@@ -64,6 +64,15 @@ function App() {
               </DefaultLayout>
             }
           />
+          {/* Quiz Finished Page (use same component to render results) */}
+          <Route
+            path="/quiz/:applicantId/finished"
+            element={
+              <DefaultLayout>
+                <Quiz />
+              </DefaultLayout>
+            }
+          />
 
           {/* Admin Routes */}
           {/* /admin → /admin-login'ə yönləndir */}

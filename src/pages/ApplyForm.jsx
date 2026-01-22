@@ -89,8 +89,8 @@ const ApplyForm = () => {
                 navigate(`/quiz/${applicantId}`);
             }, 2000);
         } catch (err) {
-            console.error('Müraciat göndərilərkən xəta:', err);
-            setError(err.response?.data?.message || 'Müraciat göndərilə bilmədi. Zəhmət olmasa yenidən cəhd edin.');
+            console.error('Müraciət Göndərilərkən xəta:', err);
+            setError(err.response?.data?.message || 'Müraciət Göndərilə bilmədi. Zəhmət olmasa yenidən cəhd edin.');
         } finally {
             setLoading(false);
         }
@@ -105,7 +105,7 @@ const ApplyForm = () => {
                             <span className="text-white text-3xl">✓</span>
                         </div>
                     </div>
-                    <h2 className="text-2xl font-bold text-gray-800 mb-2">Müraciat Qəbul Edildi!</h2>
+                    <h2 className="text-2xl font-bold text-gray-800 mb-2">Müraciət Qəbul Edildi!</h2>
                     <p className="text-gray-600 mb-6">Quiz səhifəsinə yönləndirilirsiniz...</p>
                     <Loader className="w-6 h-6 animate-spin text-blue-600 mx-auto" />
                 </div>
@@ -129,10 +129,10 @@ const ApplyForm = () => {
                 <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
                     {/* Header */}
                     <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-700 px-8 py-12 text-white">
-                        <h1 className="text-3xl md:text-4xl font-bold mb-2">Müraciet Et</h1>
+                        <h1 className="text-3xl md:text-4xl font-bold mb-2">Müraciət Et</h1>
                         {job && (
                             <p className="text-blue-100">
-                                {job.title} üçün müraciat ediyor sunuz
+                                <span className='font-semibold'>"{job.title}"</span> üçün müraciət edirsiniz
                             </p>
                         )}
                     </div>
@@ -245,7 +245,7 @@ const ApplyForm = () => {
                                                 : 'Fayl seçin və ya sürükləyin'}
                                         </p>
                                         <p className="text-sm text-gray-500">
-                                            PDF, DOC, DOCX (Maksimum 5MB)
+                                            PDF(Maksimum 5MB)
                                         </p>
                                     </div>
                                 </label>
@@ -265,10 +265,10 @@ const ApplyForm = () => {
                                 {loading ? (
                                     <>
                                         <Loader className="w-5 h-5 animate-spin" />
-                                        <span>Müraciat Göndərilir...</span>
+                                        <span>Müraciət Göndərilir...</span>
                                     </>
                                 ) : (
-                                    <span>Müraciat Göndər</span>
+                                    <span>Müraciət Göndər</span>
                                 )}
                             </button>
                         </div>
