@@ -150,18 +150,7 @@ const Navbar = () => {
                       </Link>
                     )}
 
-                    <Link
-                      to="/applicants"
-                      className={`relative group flex items-center space-x-2 px-4 py-2 rounded-xl transition-all duration-300 hover:scale-105 ${isScrolled
-                          ? 'text-gray-700 hover:text-blue-600 hover:bg-blue-50'
-                          : 'text-white hover:text-blue-100 hover:bg-white/10'
-                        }`}
-                    >
-                      <Users className="w-4 h-4" />
-                      <span className="font-medium">Namizədlər</span>
-                      <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-500 to-indigo-500 transition-all duration-300 group-hover:w-full"></span>
-                    </Link>
-
+                    
                     {/* User Dropdown */}
                     <div className="relative">
                       <button

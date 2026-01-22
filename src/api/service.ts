@@ -12,8 +12,8 @@ export const getFile = (url: string, options?: any) => {
   });
 };
 
-export const post = (url: string, data: any) => {
-  return axiosInstance.post(url, data);
+export const post = (url: string, data: any, options?: any) => {
+  return axiosInstance.post(url, data, { ...options });
 };
 
 // Fayl/PDF cavabı gözlənilən POST sorğuları üçün

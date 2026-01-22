@@ -10,6 +10,9 @@ import ProtectedRoute from './components/ProtectedRouter';
 
 // Pages
 import HomePage from './pages/HomePage';
+import JobDetails from './pages/JobDetails';
+import ApplyForm from './pages/ApplyForm';
+import Quiz from './pages/Quiz';
 import AdminLogin from './pages/Admin/AdminLogin';
 import AdminDashboard from './pages/Admin/AdminDashboard';
 import CategoryManagement from './pages/Admin/CategoryManagement';
@@ -28,6 +31,36 @@ function App() {
             element={
               <DefaultLayout>
                 <HomePage />
+              </DefaultLayout>
+            }
+          />
+
+          {/* Job Details Page */}
+          <Route
+            path="/jobs/:id"
+            element={
+              <DefaultLayout>
+                <JobDetails />
+              </DefaultLayout>
+            }
+          />
+
+          {/* Job Apply Page */}
+          <Route
+            path="/jobs/:id/apply"
+            element={
+              <DefaultLayout>
+                <ApplyForm />
+              </DefaultLayout>
+            }
+          />
+
+          {/* Quiz Page */}
+          <Route
+            path="/quiz/:applicantId"
+            element={
+              <DefaultLayout>
+                <Quiz />
               </DefaultLayout>
             }
           />
