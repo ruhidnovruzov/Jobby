@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import toast, { Toaster } from 'react-hot-toast';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { post } from '../api/service';
 import { Upload, ArrowLeft, AlertCircle, Loader } from 'lucide-react';
@@ -90,7 +91,10 @@ const ApplyForm = () => {
             }, 2000);
         } catch (err) {
             console.error('Müraciət Göndərilərkən xəta:', err);
-            setError(err.response?.data?.message || 'Müraciət Göndərilə bilmədi. Zəhmət olmasa yenidən cəhd edin.');
+            const detail = err.response?.data?.detail || err.response?.data?.message || 'Müraciət Göndərilə bilmədi. Zəhmət olmasa yenidən cəhd edin.';
+            // show backend detail in a toast
+            toast.error(detail);
+            setError(detail);
         } finally {
             setLoading(false);
         }
@@ -115,6 +119,7 @@ const ApplyForm = () => {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 py-12">
+            <Toaster position="top-right" />
             <div className="container mx-auto px-4 max-w-2xl">
                 {/* Back Button */}
                 <button
