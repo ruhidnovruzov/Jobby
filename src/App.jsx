@@ -32,7 +32,7 @@ const QuizRedirect = () => {
 
 function App() {
   return (
-    <Router>
+    <Router basename='/vacancy/'>
       <AuthProvider>
         <Routes>
           {/* Public Routes - Hər kəs daxil ola bilər */}
@@ -233,7 +233,7 @@ const NotFoundPage = () => (
           <h2 className="text-3xl font-bold text-gray-800 mb-4">Səhifə Tapılmadı</h2>
           <p className="text-gray-600 mb-6">Axtardığınız səhifə mövcud deyil və ya silinib.</p>
           <button
-            onClick={() => window.location.href = '/'}
+            onClick={() => window.location.href = '/vacancy/'}
             className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
           >
             Ana Səhifəyə Qayıt

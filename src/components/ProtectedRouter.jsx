@@ -85,7 +85,8 @@ const ProtectedRoute = ({
                                     Geri Qayıt
                                 </button>
                                 <button
-                                    onClick={() => window.location.href = '/'}
+                                                onClick={() => window.location.href = '/vacancy/'}
+
                                     className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
                                 >
                                     Ana Səhifə

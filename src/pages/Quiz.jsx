@@ -258,7 +258,7 @@ const Quiz = () => {
 
                             {/* Chart Section */}
                             <div className="bg-gray-50 rounded-xl p-6">
-                                <h3 className="text-lg font-semibold text-gray-800 mb-4 text-center">Cavab Dağılımı</h3>
+                                <h3 className="text-lg font-semibold text-gray-800 mb-4 text-center">İmtahan nəticəsi</h3>
                                 <div className="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-8">
                                     <div className="w-full md:w-80 h-80">
                                         <ResponsiveContainer width="100%" height="100%">
@@ -347,7 +347,7 @@ const Quiz = () => {
                     
                     <div className="mt-6 text-center">
                         <button 
-                            onClick={() => navigate('/')} 
+                            onClick={() => navigate('/vacancy/')} 
                             className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors shadow-md"
                         >
                             Ana Səhifəyə Qayıt
@@ -361,9 +361,7 @@ const Quiz = () => {
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 py-12">
             <div className="container mx-auto px-4 max-w-3xl">
-                <button onClick={() => navigate(-1)} className="flex items-center space-x-2 text-blue-600 hover:text-blue-700 mb-6">
-                    <ArrowLeft className="w-5 h-5" /> <span>Geri Qayıt</span>
-                </button>
+              
 
                 <div className="bg-white rounded-2xl shadow-2xl overflow-hidden relative">
                     <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-700 px-8 py-8 text-white">

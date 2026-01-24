@@ -61,10 +61,10 @@ const Footer = () => {
             </h3>
             <ul className="space-y-3">
               {[
-                { name: 'Ana Səhifə', href: '/' },
-                { name: 'İş Elanları', href: '/' },
-                { name: 'Haqqımızda', href: '/' },
-                { name: 'Əlaqə', href: '/' }
+                { name: 'Ana Səhifə', href: '/vacancy/' },
+                { name: 'İş Elanları', href: '/vacancy/' },
+                { name: 'Haqqımızda', href: '/vacancy/' },
+                { name: 'Əlaqə', href: '/vacancy/' }
               ].map((link, index) => (
                 <li key={index}>
                   <a 
@@ -134,15 +134,15 @@ const Footer = () => {
           </div>
           
           <div className="flex items-center space-x-6">
-            <a href="/privacy" className="text-blue-100 hover:text-white transition-colors duration-300 text-sm flex items-center space-x-1">
+            <a href="/vacancy/privacy" className="text-blue-100 hover:text-white transition-colors duration-300 text-sm flex items-center space-x-1">
               <span>Məxfilik Siyasəti</span>
               <ExternalLink className="w-3 h-3" />
             </a>
-            <a href="/terms" className="text-blue-100 hover:text-white transition-colors duration-300 text-sm flex items-center space-x-1">
+            <a href="/vacancy/terms" className="text-blue-100 hover:text-white transition-colors duration-300 text-sm flex items-center space-x-1">
               <span>İstifadə Şərtləri</span>
               <ExternalLink className="w-3 h-3" />
             </a>
-            <a href="/cookies" className="text-blue-100 hover:text-white transition-colors duration-300 text-sm flex items-center space-x-1">
+            <a href="/vacancy/cookies" className="text-blue-100 hover:text-white transition-colors duration-300 text-sm flex items-center space-x-1">
               <span>Cookie Siyasəti</span>
               <ExternalLink className="w-3 h-3" />
             </a>

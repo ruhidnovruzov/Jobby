@@ -72,7 +72,7 @@ const JobDetails = () => {
                     <h2 className="text-2xl font-bold text-center text-gray-800 mb-4">Xəta Baş Verdi</h2>
                     <p className="text-center text-gray-600 mb-6">{error || 'İş ayrıntıları tapılmadı.'}</p>
                     <button
-                        onClick={() => navigate('/')}
+                        onClick={() => navigate('/vacancy/')}
                         className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-3 rounded-lg font-semibold transition-all duration-200"
                     >
                         Geri Qayıt

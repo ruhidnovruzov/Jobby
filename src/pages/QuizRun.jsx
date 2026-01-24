@@ -231,7 +231,6 @@ const QuizRun = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 py-12">
       <div className="container mx-auto px-4 max-w-3xl">
         <button onClick={() => navigate(-1)} className="flex items-center space-x-2 text-blue-600 hover:text-blue-700 mb-6">
-          <ArrowLeft className="w-5 h-5" /> <span>Geri Qayıt</span>
         </button>
 
         <div className="bg-white rounded-2xl shadow-2xl overflow-hidden relative">
