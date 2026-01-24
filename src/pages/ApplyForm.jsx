@@ -257,7 +257,7 @@ const ApplyForm = () => {
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className={`w-full py-4 rounded-lg font-semibold text-lg transition-all duration-200 shadow-lg flex items-center justify-center space-x-2 ${loading
+                                className={`w-full cursor-pointer py-4 rounded-lg font-semibold text-lg transition-all duration-200 shadow-lg flex items-center justify-center space-x-2 ${loading
                                         ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                                         : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white hover:shadow-xl transform hover:scale-105'
                                     }`}

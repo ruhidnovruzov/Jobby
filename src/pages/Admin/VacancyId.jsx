@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import AdminSidebar from '../../components/AdminSidebar';
 import { get, post, put, del } from '../../api/service';
-import { Plus, Edit2, Trash2, Loader, AlertCircle, X } from 'lucide-react';
+import { Plus, Edit2, Trash2, Loader } from 'lucide-react';
+import toast, { Toaster } from 'react-hot-toast';
 
 const VacancyId = () => {
   const { id } = useParams();
@@ -13,8 +14,37 @@ const VacancyId = () => {
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [qLoading, setQLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+
+  // Backend'den gelen error'ları parse et ve toast göster
+  const showErrorToast = (err) => {
+    const errorData = err.response?.data;
+    
+    if (errorData?.errors) {
+      // Validation errors - object formatında
+      const errorMessages = [];
+      Object.keys(errorData.errors).forEach((key) => {
+        const messages = errorData.errors[key];
+        if (Array.isArray(messages)) {
+          messages.forEach(msg => errorMessages.push(msg));
+        } else {
+          errorMessages.push(messages);
+        }
+      });
+      
+      if (errorMessages.length > 0) {
+        errorMessages.forEach(msg => toast.error(msg));
+        return;
+      }
+    }
+    
+    // Single error message - öncelik sırası: detail > message > title
+    const errorMessage = errorData?.detail || errorData?.message || errorData?.title || err.message || 'Xəta baş verdi.';
+    toast.error(errorMessage);
+  };
+
+  const showSuccessToast = (message) => {
+    toast.success(message);
+  };
 
   // Question form
   const emptyOptions = () => [
@@ -47,7 +77,7 @@ const VacancyId = () => {
       setVacancy(res.data?.data || res.data || null);
     } catch (err) {
       console.error('Vacancy fetch error', err);
-      setError('Vakansiya yüklənərkən xəta oldu.');
+      showErrorToast(err);
     }
   };
 
@@ -63,16 +93,47 @@ const VacancyId = () => {
         options: (q.options || []).map((o) => ({ id: o.id, text: o.text || '', isCorrect: !!o.isCorrect })),
       }));
       setQuestions(normalized);
+      
+      // Update form order if form is empty (not in edit mode)
+      if (!questionForm.id && !questionForm.text.trim()) {
+        const nextOrder = getNextOrder(normalized);
+        setQuestionForm(prev => ({ ...prev, order: nextOrder }));
+      }
     } catch (err) {
       console.error('Questions fetch error', err);
-      setError('Suallar yüklənərkən xəta oldu.');
+      showErrorToast(err);
     } finally {
       setQLoading(false);
     }
   };
 
+  // Calculate next available order number
+  const getNextOrder = (questionsList = questions) => {
+    if (questionsList.length === 0) return 1;
+    
+    // Get all existing orders and sort them
+    const existingOrders = questionsList
+      .map(q => Number(q.order) || 0)
+      .filter(order => order > 0)
+      .sort((a, b) => a - b);
+    
+    // If no valid orders exist, return 1
+    if (existingOrders.length === 0) return 1;
+    
+    // Find the first gap in the sequence
+    for (let i = 1; i <= existingOrders.length; i++) {
+      if (existingOrders[i - 1] !== i) {
+        return i;
+      }
+    }
+    
+    // No gap found, return max + 1
+    return Math.max(...existingOrders) + 1;
+  };
+
   const resetQuestionForm = () => {
-    setQuestionForm({ id: null, text: '', order: 1, options: emptyOptions() });
+    const nextOrder = getNextOrder();
+    setQuestionForm({ id: null, text: '', order: nextOrder, options: emptyOptions() });
   };
 
   const handleOptionChange = (index, field, value) => {
@@ -97,22 +158,28 @@ const VacancyId = () => {
 
   const handleQuestionSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-    setSuccess('');
 
     // Validation: at least 4 options
     if (!questionForm.text.trim()) {
-      setError('Sual mətnini daxil edin.');
+      toast.error('Sual mətnini daxil edin.');
       return;
     }
+    
+    // Order validation - minimum 1 olmalıdır
+    const orderValue = Number(questionForm.order) || 1;
+    if (orderValue < 1) {
+      toast.error('Sıra (order) ən az 1 olmalıdır.');
+      return;
+    }
+    
     if (!questionForm.options || questionForm.options.length < 4) {
-      setError('Sualın ən az 4 cavab seçimi olmalıdır.');
+      toast.error('Sualın ən az 4 cavab seçimi olmalıdır.');
       return;
     }
     // Ensure option texts are non-empty
     for (let i = 0; i < questionForm.options.length; i++) {
       if (!questionForm.options[i].text.trim()) {
-        setError(`Cavab ${i + 1} üçün mətn daxil edin.`);
+        toast.error(`Cavab ${i + 1} üçün mətn daxil edin.`);
         return;
       }
     }
@@ -120,23 +187,23 @@ const VacancyId = () => {
     const payload = {
       vacancyId: parseInt(id),
       text: questionForm.text.trim(),
-      order: Number(questionForm.order) || 1,
+      order: orderValue,
       options: questionForm.options.map((o) => ({ text: o.text.trim(), isCorrect: !!o.isCorrect })),
     };
 
     try {
       if (questionForm.id) {
         await put(`/questions/${questionForm.id}`, payload);
-        setSuccess('Sual yeniləndi.');
+        showSuccessToast('Sual yeniləndi.');
       } else {
         await post('/questions', payload);
-        setSuccess('Sual yaradıldı.');
+        showSuccessToast('Sual yaradıldı.');
       }
       resetQuestionForm();
       await fetchQuestions();
     } catch (err) {
       console.error('Question save error', err);
-      setError(err.response?.data?.message || 'Sualların saxlanması zamanı xəta baş verdi.');
+      showErrorToast(err);
     }
   };
 
@@ -147,14 +214,14 @@ const VacancyId = () => {
       setQuestionForm({
         id: data.id,
         text: data.text || '',
-        order: data.order || 0,
+        order: Math.max(1, data.order || 1), // Minimum 1 olmalıdır
         // keep option ids when loading so we can show/edit them; submission will strip ids
         options: (data.options && data.options.length > 0) ? data.options.map((o) => ({ id: o.id, text: o.text || '', isCorrect: !!o.isCorrect })) : emptyOptions(),
       });
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err) {
       console.error('Load question error', err);
-      setError('Sual məlumatları yüklənərkən xəta oldu.');
+      showErrorToast(err);
     }
   };
 
@@ -162,11 +229,11 @@ const VacancyId = () => {
     if (!window.confirm('Bu sualı silmək istədiyinizə əminsiniz?')) return;
     try {
       await del(`/questions/${questionId}`);
-      setSuccess('Sual uğurla silindi.');
+      showSuccessToast('Sual uğurla silindi.');
       await fetchQuestions();
     } catch (err) {
       console.error('Delete question error', err);
-      setError(err.response?.data?.message || 'Sual silinərkən xəta oldu.');
+      showErrorToast(err);
     }
   };
 
@@ -185,6 +252,30 @@ const VacancyId = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 flex">
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          duration: 4000,
+          style: {
+            background: '#fff',
+            color: '#1f2937',
+            borderRadius: '8px',
+            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+          },
+          success: {
+            iconTheme: {
+              primary: '#10b981',
+              secondary: '#fff',
+            },
+          },
+          error: {
+            iconTheme: {
+              primary: '#ef4444',
+              secondary: '#fff',
+            },
+          },
+        }}
+      />
       <AdminSidebar open={sidebarOpen} setOpen={setSidebarOpen} />
 
       <div className={`flex-1 transition-all ${sidebarOpen ? 'ml-64' : 'ml-20'}`}>
@@ -192,7 +283,6 @@ const VacancyId = () => {
           <div className="flex items-center justify-between mb-6">
             <div>
               <h1 className="text-2xl font-bold text-gray-800">Vakansiya Detalları</h1>
-              <p className="text-sm text-gray-600">ID: {id}</p>
             </div>
             <div className="flex items-center space-x-2">
               <button
@@ -204,29 +294,6 @@ const VacancyId = () => {
             </div>
           </div>
 
-          {error && (
-            <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start space-x-3">
-              <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-              <div className="flex-1">
-                <p className="text-red-700">{error}</p>
-              </div>
-              <button onClick={() => setError('')} className="text-red-600 hover:text-red-800">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-          )}
-
-          {success && (
-            <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg flex items-start space-x-3">
-              <div className="flex-1">
-                <p className="text-green-700">{success}</p>
-              </div>
-              <button onClick={() => setSuccess('')} className="text-green-600 hover:text-green-800">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-          )}
-
           <div className="bg-white rounded-lg shadow-md p-6 mb-8">
             {loading ? (
               <div className="p-6 text-center">
@@ -237,7 +304,7 @@ const VacancyId = () => {
               <div>
                 <h2 className="text-xl font-semibold text-gray-800 mb-2">{vacancy?.title || '-'}</h2>
                 <p className="text-gray-700 mb-4 whitespace-pre-wrap">{vacancy?.description || '-'}</p>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
                   <div>
                     <strong>Status:</strong>
                     <div>{vacancy?.isActive ? 'Aktiv' : 'Passiv'}</div>
@@ -245,10 +312,6 @@ const VacancyId = () => {
                   <div>
                     <strong>Yaranma Tarixi:</strong>
                     <div>{formatDate(vacancy?.createdDate)}</div>
-                  </div>
-                  <div>
-                    <strong>Kateqoriya ID:</strong>
-                    <div>{vacancy?.categoryId ?? '-'}</div>
                   </div>
                 </div>
               </div>
@@ -278,8 +341,16 @@ const VacancyId = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-2">Sıra (order)</label>
                 <input
                   type="number"
+                  min="1"
                   value={questionForm.order}
-                  onChange={(e) => setQuestionForm((p) => ({ ...p, order: e.target.value }))}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    const numValue = Number(value);
+                    // Mənfi və ya 0 ola bilməz, minimum 1
+                    if (value === '' || (numValue >= 1)) {
+                      setQuestionForm((p) => ({ ...p, order: value === '' ? '' : numValue }));
+                    }
+                  }}
                   className="w-32 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
@@ -299,9 +370,20 @@ const VacancyId = () => {
                       />
                       <label className="flex items-center space-x-2 text-sm">
                         <input
-                          type="checkbox"
+                          type="radio"
+                          name={`correct-answer-${questionForm.id || 'new'}`}
                           checked={opt.isCorrect}
-                          onChange={(e) => handleOptionChange(idx, 'isCorrect', e.target.checked)}
+                          onChange={(e) => {
+                            // Radio button seçildiğinde, diğer seçimləri false yap
+                            setQuestionForm((prev) => {
+                              const next = { ...prev };
+                              next.options = prev.options.map((o, i) => ({
+                                ...o,
+                                isCorrect: i === idx
+                              }));
+                              return next;
+                            });
+                          }}
                         />
                         <span>Doğrudur</span>
                       </label>

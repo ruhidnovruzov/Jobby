@@ -230,7 +230,6 @@ const CategoryManagement = () => {
               <div className="flex items-center justify-between text-sm text-gray-500">
                 <div className="flex items-center space-x-2">
                   <Hash className="w-4 h-4" />
-                  <span>ID: {category._id.slice(-6)}</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Calendar className="w-4 h-4" />

@@ -44,7 +44,7 @@ const JobCard = ({ job, getCategoryName = null }) => {
 
         {/* Card Footer */}
         <div className="px-6 pb-6">
-            <button className="group/btn w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-[1.02] focus:outline-none focus:ring-4 focus:ring-blue-500/50"
+            <button className="group/btn cursor-pointer w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-[1.02] focus:outline-none focus:ring-4 focus:ring-blue-500/50"
                 onClick={() => navigate(`/jobs/${job.id}`)}
             >
                 <div className="flex items-center justify-center space-x-2">

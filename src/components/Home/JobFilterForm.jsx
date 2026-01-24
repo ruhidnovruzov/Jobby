@@ -68,7 +68,7 @@ const JobFilterForm = ({ filters, onChange, onSubmit }) => {
             <div className="flex justify-center pt-4">
                 <button 
                     type="submit" 
-                    className="group relative bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-12 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-4 focus:ring-blue-500/50"
+                    className="group relative cursor-pointer bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-12 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-4 focus:ring-blue-500/50"
                 >
                     <div className="flex items-center space-x-3">
                         <Search className="w-5 h-5 group-hover:animate-pulse" />

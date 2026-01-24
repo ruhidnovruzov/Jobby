@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { LogOut, BarChart3, Tags, Briefcase, Menu, X } from 'lucide-react';
+import { LogOut, BarChart3, Tags, Briefcase, Users, Menu, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const AdminSidebar = ({ open, setOpen }) => {
@@ -29,9 +29,19 @@ const AdminSidebar = ({ open, setOpen }) => {
       icon: Briefcase,
       path: '/admin/vacancies',
     },
+    {
+      label: 'Müraciətçilər',
+      icon: Users,
+      path: '/admin/applicants',
+    },
   ];
 
-  const isActive = (path) => location.pathname === path;
+  const isActive = (path) => {
+    if (path === '/admin/applicants') {
+      return location.pathname.startsWith('/admin/applicants');
+    }
+    return location.pathname === path;
+  };
 
   return (
     <div

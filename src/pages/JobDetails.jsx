@@ -153,13 +153,13 @@ const JobDetails = () => {
                             <button
                                 onClick={() => navigate(`/jobs/${job.id}/apply`, { state: { job } })}
                                 disabled={!job.isActive}
-                                className={`w-full md:w-auto px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-200 shadow-lg ${
+                                className={`w-full md:w-auto cursor-pointer px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-200 shadow-lg ${
                                     job.isActive
                                         ? 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white hover:shadow-xl transform hover:scale-105'
                                         : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                                 }`}
                             >
-                                {job.isActive ? 'Müraciet Et' : 'Vakansiya Bağlanıb'}
+                                {job.isActive ? 'Müraciət Et' : 'Vakansiya Bağlanıb'}
                             </button>
                         </div>
                     </div>

@@ -438,19 +438,19 @@ const VacancyManagement = () => {
                         </td>
                         <td className="px-6 py-4 text-right">
                           <div className="flex justify-end space-x-2">
+                          <button
+                              onClick={() => navigate(`/admin/vacancies/${vacancy.id}`)}
+                              className="p-2 hover:bg-gray-100 rounded-lg transition-all text-gray-700"
+                              title="Bax"
+                            >
+                              <Eye className="w-5 h-5" />
+                            </button>
                             <button
                               onClick={() => handleEdit(vacancy)}
                               className="p-2 hover:bg-blue-100 rounded-lg transition-all text-blue-600"
                               title="Redaktə Et"
                             >
                               <Edit2 className="w-5 h-5" />
-                            </button>
-                            <button
-                              onClick={() => navigate(`/admin/vacancies/${vacancy.id}`)}
-                              className="p-2 hover:bg-gray-100 rounded-lg transition-all text-gray-700"
-                              title="Bax"
-                            >
-                              <Eye className="w-5 h-5" />
                             </button>
                             <button
                               onClick={() => handleDelete(vacancy.id)}

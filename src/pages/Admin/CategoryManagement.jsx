@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { get, post, put, del } from '../../api/service';
-import { ArrowLeft, Plus, Edit2, Trash2, Loader, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Plus, Edit2, Trash2, Loader, AlertCircle, Eye } from 'lucide-react';
 import AdminSidebar from '../../components/AdminSidebar';
 
 const CategoryManagement = () => {
@@ -228,6 +228,13 @@ const CategoryManagement = () => {
                       </td>
                       <td className="px-6 py-4 text-right">
                         <div className="flex justify-end space-x-2">
+                          <button
+                            onClick={() => navigate(`/admin/categories/${category.id}/vacancies`)}
+                            className="p-2 hover:bg-gray-100 rounded-lg transition-all text-gray-700"
+                            title="Vakansiyaları gör"
+                          >
+                            <Eye className="w-5 h-5" />
+                          </button>
                           <button
                             onClick={() => handleEdit(category)}
                             className="p-2 hover:bg-blue-100 rounded-lg transition-all text-blue-600"

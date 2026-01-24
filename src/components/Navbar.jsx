@@ -74,7 +74,7 @@ const Navbar = () => {
                     ? 'from-blue-600 to-indigo-600'
                     : 'from-white to-blue-100'
                   }`}>
-                  JobPortal
+                  Jobby
                 </span>
               </Link>
             </div>

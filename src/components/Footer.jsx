@@ -22,7 +22,7 @@ const Footer = () => {
 
       <div className="container mx-auto px-4 py-16 relative z-10">
         {/* Main Footer Content */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 mb-12">
           
           {/* Company Info */}
           <div className="space-y-6">
@@ -31,7 +31,7 @@ const Footer = () => {
                 <Briefcase className="w-6 h-6 text-white" />
               </div>
               <span className="text-2xl font-bold bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">
-                JobPortal
+                Jobby
               </span>
             </div>
             <p className="text-blue-100 leading-relaxed">
@@ -62,11 +62,9 @@ const Footer = () => {
             <ul className="space-y-3">
               {[
                 { name: 'Ana Səhifə', href: '/' },
-                { name: 'İş Elanları', href: '/jobs' },
-                { name: 'Şirkətlər', href: '/companies' },
-                { name: 'Namizədlər', href: '/applicants' },
-                { name: 'Haqqımızda', href: '/about' },
-                { name: 'Əlaqə', href: '/contact' }
+                { name: 'İş Elanları', href: '/' },
+                { name: 'Haqqımızda', href: '/' },
+                { name: 'Əlaqə', href: '/' }
               ].map((link, index) => (
                 <li key={index}>
                   <a 
@@ -75,34 +73,6 @@ const Footer = () => {
                   >
                     <ArrowRight className="w-4 h-4 mr-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform -translate-x-2 group-hover:translate-x-0" />
                     <span className="group-hover:font-medium transition-all duration-300">{link.name}</span>
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Services */}
-          <div className="space-y-6">
-            <h3 className="text-xl font-bold text-white flex items-center">
-              <div className="w-1 h-6 bg-gradient-to-b from-indigo-400 to-purple-500 rounded-full mr-3"></div>
-              Xidmətlər
-            </h3>
-            <ul className="space-y-3">
-              {[
-                { name: 'İş Axtarışı', href: '/job-search' },
-                { name: 'CV Hazırlama', href: '/cv-builder' },
-                { name: 'Karyera Məsləhəti', href: '/career-advice' },
-                { name: 'Şirkət Profili', href: '/company-profile' },
-                { name: 'İş Elanı Yerləşdirmə', href: '/post-job' },
-                { name: 'Premium Üzvlük', href: '/premium' }
-              ].map((service, index) => (
-                <li key={index}>
-                  <a 
-                    href={service.href} 
-                    className="group flex items-center text-blue-100 hover:text-white transition-all duration-300 hover:translate-x-2"
-                  >
-                    <ArrowRight className="w-4 h-4 mr-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform -translate-x-2 group-hover:translate-x-0" />
-                    <span className="group-hover:font-medium transition-all duration-300">{service.name}</span>
                   </a>
                 </li>
               ))}
@@ -144,26 +114,10 @@ const Footer = () => {
                   <Mail className="w-5 h-5 text-purple-300" />
                 </div>
                 <div>
-                  <a href="mailto:info@jobportal.az" className="text-blue-100 hover:text-white transition-colors duration-300">
-                    info@jobportal.az
+                  <a href="mailto:info@Jobby.az" className="text-blue-100 hover:text-white transition-colors duration-300">
+                    info@jobby.az
                   </a>
                 </div>
-              </div>
-            </div>
-
-            {/* Newsletter Signup */}
-            <div className="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10">
-              <h4 className="text-white font-semibold mb-3">Xəbər Bülleteni</h4>
-              <p className="text-blue-100 text-sm mb-4">Yeni iş elanları haqqında məlumat alın</p>
-              <div className="flex space-x-2">
-                <input 
-                  type="email" 
-                  placeholder="Email ünvanınız"
-                  className="flex-1 px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent text-sm"
-                />
-                <button className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-4 py-2 rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 hover:scale-105 shadow-lg">
-                  <ArrowRight className="w-4 h-4" />
-                </button>
               </div>
             </div>
           </div>
@@ -175,7 +129,7 @@ const Footer = () => {
         {/* Bottom Footer */}
         <div className="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
           <div className="flex items-center space-x-2 text-blue-100">
-            <span>© {currentYear} JobPortal. Bütün hüquqlar qorunur.</span>
+            <span>© {currentYear} Jobby. Bütün hüquqlar qorunur.</span>
             <Heart className="w-4 h-4 text-red-400 animate-pulse" />
           </div>
           

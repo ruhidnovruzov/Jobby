@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 
 // Layout
@@ -13,12 +13,22 @@ import HomePage from './pages/HomePage';
 import JobDetails from './pages/JobDetails';
 import ApplyForm from './pages/ApplyForm';
 import Quiz from './pages/Quiz';
+import QuizStart from './pages/QuizStart';
+import QuizRun from './pages/QuizRun';
 import AdminLogin from './pages/Admin/AdminLogin';
 import AdminDashboard from './pages/Admin/AdminDashboard';
 import CategoryManagement from './pages/Admin/CategoryManagement';
+import CategoryVacancies from './pages/Admin/CategoryVacancies';
 import VacancyManagement from './pages/Admin/VacancyManagement';
 import VacancyId from './pages/Admin/VacancyId';
+import ApplicantsList from './pages/Admin/ApplicantsList';
+import ApplicantDetail from './pages/Admin/ApplicantDetail';
 
+// Helper redirect component for bare /quiz/:applicantId -> send to /quiz/:applicantId/start
+const QuizRedirect = () => {
+  const { applicantId } = useParams();
+  return <Navigate to={`/quiz/${applicantId}/start`} replace />;
+};
 
 function App() {
   return (
@@ -55,16 +65,31 @@ function App() {
             }
           />
 
-          {/* Quiz Page */}
+          {/* Quiz start / run / finished routes */}
           <Route
             path="/quiz/:applicantId"
             element={
               <DefaultLayout>
-                <Quiz />
+                <QuizRedirect />
               </DefaultLayout>
             }
           />
-          {/* Quiz Finished Page (use same component to render results) */}
+          <Route
+            path="/quiz/:applicantId/start"
+            element={
+              <DefaultLayout>
+                <QuizStart />
+              </DefaultLayout>
+            }
+          />
+          <Route
+            path="/quiz/:applicantId/run"
+            element={
+              <DefaultLayout>
+                <QuizRun />
+              </DefaultLayout>
+            }
+          />
           <Route
             path="/quiz/:applicantId/finished"
             element={
@@ -109,6 +134,20 @@ function App() {
             }
           />
 
+          {/* Admin - Category Vacancies */}
+          <Route
+            path="/admin/categories/:id/vacancies"
+            element={
+              <ProtectedRoute
+                allowedRoles={['admin']}
+                requireAuth={true}
+                redirectTo="/admin-login"
+              >
+                <CategoryVacancies />
+              </ProtectedRoute>
+            }
+          />
+
           {/* Admin - Vacancy Management */}
           <Route
             path="/admin/vacancies"
@@ -136,7 +175,36 @@ function App() {
               </ProtectedRoute>
             }
           />
+
+          {/* Admin - Applicants List */}
+          <Route
+            path="/admin/applicants"
+            element={
+              <ProtectedRoute
+                allowedRoles={['admin']}
+                requireAuth={true}
+                redirectTo="/admin-login"
+              >
+                <ApplicantsList />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Admin - Applicant Detail by ID */}
+          <Route
+            path="/admin/applicants/:id"
+            element={
+              <ProtectedRoute
+                allowedRoles={['admin']}
+                requireAuth={true}
+                redirectTo="/admin-login"
+              >
+                <ApplicantDetail />
+              </ProtectedRoute>
+            }
+          />
           
+
 
           {/* 404 Route - Tapılmayan səhifələr üçün */}
           <Route
