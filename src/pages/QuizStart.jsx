@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { post } from '../api/service';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { post, get } from '../api/service';
 import { Loader, BookOpen } from 'lucide-react';
 
 const ONE_QUESTION_SECONDS = 60;
@@ -24,11 +24,33 @@ const QuizStart = () => {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const location = useLocation();
+  const initialApplicantTotal = location.state?.applicantTotal ?? null;
+  const [applicantTotal, setApplicantTotal] = useState(initialApplicantTotal);
+  const [metaLoading, setMetaLoading] = useState(false);
 
   const getErrorDetail = (err) => {
     if (!err) return null;
     return err.response?.data?.detail || err.response?.data?.message || err.message || null;
   };
+
+  useEffect(() => {
+    // fetch applicant meta (may include totalQuestions) only if we don't already have it from navigation state
+    const fetchMeta = async () => {
+      setMetaLoading(true);
+      try {
+        const res = await get(`/applicants/${applicantId}`);
+        const info = res.data?.data || res.data || null;
+        setApplicantTotal(info?.totalQuestions ?? null);
+      } catch (err) {
+        // don't block starting the test; log and ignore
+        console.debug('Failed to fetch applicant meta', err);
+      } finally {
+        setMetaLoading(false);
+      }
+    };
+    if (applicantId && initialApplicantTotal == null) fetchMeta();
+  }, [applicantId]);
 
   const startTest = async () => {
     setError('');
@@ -40,14 +62,15 @@ const QuizStart = () => {
       
       // İlk sorudan totalQuestions değerini al (eğer varsa)
       const firstQuestion = Array.isArray(payload) ? payload[0] : payload;
-      const totalQuestions = firstQuestion?.totalQuestions || null;
+      // prefer applicant-level total if available, otherwise read from first question
+      const totalQuestions = firstQuestion?.totalQuestions || applicantTotal || null;
 
       // persist to localStorage
       const initial = {
         questions,
         currentIndex: 0,
         secondsLeft: questions.length > 0 ? (questions[0].timeLeftSeconds && questions[0].timeLeftSeconds > 0 ? questions[0].timeLeftSeconds : ONE_QUESTION_SECONDS) : ONE_QUESTION_SECONDS,
-        totalQuestions, // totalQuestions değerini kaydet
+        totalQuestions, // totalQuestions değerini kaydet (applicant-level preferred)
       };
       localStorage.setItem(storageKey(applicantId), JSON.stringify(initial));
 
@@ -73,7 +96,21 @@ const QuizStart = () => {
 
           <div className="p-8 text-center">
             {error && <div className="mb-4 text-red-600">{error}</div>}
-            <p className="text-lg mb-6">Sualları cavablandırmaq üçün testi başlatın.</p>
+            <p className="text-lg font-medium mb-2">Sualları cavablandırmaq üçün testi başlatın.</p>
+
+            {metaLoading ? (
+              <div className="mb-4 text-sm text-gray-600">Sual sayı yüklənir...</div>
+            ) : (
+              applicantTotal != null && (
+                <div className="mb-4 text-sm text-gray-700">Bu test <span className="font-semibold">{applicantTotal}</span> sualdan ibarətdir.</div>
+              )
+            )}
+
+            <div className="mb-4 text-left bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded">
+              <p className="text-sm font-semibold text-yellow-800">DİQQƏT</p>
+              <p className="text-sm text-yellow-700">İmtahana başladıqdan sonra səhifəni yeniləmək, geri qayıtmaq və ya brauzeri bağlamaq olmaz. İmtahan yalnız bir dəfə keçirilə bilər. Yarımçıq çıxdığınız təqdirdə nəticəniz ləğv olunacaq və imtahan bitmiş sayılacaqdır.</p>
+            </div>
+
             <button onClick={startTest} disabled={loading} className="px-6 py-3 cursor-pointer bg-blue-600 text-white rounded-lg inline-flex items-center space-x-3">
               {loading ? (<><Loader className="w-4 h-4 animate-spin"/> <span>Yüklənir...</span></>) : <span>Testi Başlat</span>}
             </button>

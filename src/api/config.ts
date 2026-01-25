@@ -39,6 +39,11 @@ axiosInstance.interceptors.response.use(
         return Promise.reject(error);
       }
 
+      // Do not redirect for public applicant endpoints (these may be used by anonymous applicants)
+      if (requestUrl && requestUrl.includes('/applicants')) {
+        return Promise.reject(error);
+      }
+
   // Tokeni sil və istifadəçini admin-login səhifəsinə yönləndir
   localStorage.removeItem('token');
   localStorage.removeItem('user');

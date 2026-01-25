@@ -85,9 +85,10 @@ const ApplyForm = () => {
             setSuccess(true);
             // Backend response'undan applicant ID'sini al
             const applicantId = response.data?.data?.id || response.data?.id || id;
-            // Redirect to quiz page after 2 seconds
+            const applicantTotal = response.data?.data?.totalQuestions || response.data?.totalQuestions || null;
+            // Redirect to quiz start page after 2 seconds and pass applicantTotal so start page doesn't need to re-query
             setTimeout(() => {
-                navigate(`/quiz/${applicantId}`);
+                navigate(`/quiz/${applicantId}/start`, { state: { applicantTotal } });
             }, 2000);
         } catch (err) {
             console.error('Müraciət Göndərilərkən xəta:', err);
