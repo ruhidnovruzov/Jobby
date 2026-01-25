@@ -67,7 +67,7 @@ const Quiz = () => {
                                     startTimer();
         } catch (err) {
             console.error('Start test error', err);
-            setError(err.response?.data?.message || 'Test başlatılarkən xəta baş verdi.');
+            setError(err.response?.data?.detail || err.response?.data?.message || err.message || 'Test başlatılarkən xəta baş verdi.');
         } finally {
             setLoading(false);
         }
@@ -153,7 +153,7 @@ const Quiz = () => {
             }
         } catch (err) {
             console.error('Submit answer error', err);
-            setError(err.response?.data?.message || 'Cavab göndərilərkən xəta oldu.');
+            setError(err.response?.data?.detail || err.response?.data?.message || err.message || 'Cavab göndərilərkən xəta oldu.');
             // try to continue locally
             const next = currentIndex + 1;
             if (next < questions.length) {
@@ -177,7 +177,7 @@ const Quiz = () => {
             navigate(`/quiz/${applicantId}/finished`, { state: { results } });
         } catch (err) {
             console.error('Finish test error', err);
-            setError(err.response?.data?.message || 'Test bitirilmədi.');
+            setError(err.response?.data?.detail || err.response?.data?.message || err.message || 'Test bitirilmədi.');
         } finally {
             setLoading(false);
         }

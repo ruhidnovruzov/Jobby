@@ -6,6 +6,12 @@ import { Loader, ArrowLeft, BookOpen } from 'lucide-react';
 const ONE_QUESTION_SECONDS = 60;
 const storageKey = (applicantId) => `quiz:${applicantId}`;
 
+// Extract useful error detail from axios error shapes
+const getErrorDetail = (err) => {
+  if (!err) return null;
+  return err.response?.data?.detail || err.response?.data?.message || err.message || null;
+};
+
 const QuizRun = () => {
   const { applicantId } = useParams();
   const navigate = useNavigate();
@@ -22,6 +28,7 @@ const QuizRun = () => {
   const submittingRef = useRef(false);
   const selectedOptionRef = useRef(null);
   const submitTimeoutRef = useRef(null);
+  const restoredRef = useRef(false);
 
   // load from localStorage on mount. If no data, redirect to start
   useEffect(() => {
@@ -36,6 +43,8 @@ const QuizRun = () => {
       setCurrentIndex(state.currentIndex || 0);
       setSecondsLeft(state.secondsLeft || ONE_QUESTION_SECONDS);
       setTotalQuestions(state.totalQuestions || null);
+      // mark that we restored secondsLeft from storage so timer uses it (only once)
+      restoredRef.current = true;
     } catch (err) {
       console.error('Failed to parse quiz state', err);
       navigate(`/quiz/${applicantId}/start`);
@@ -46,8 +55,18 @@ const QuizRun = () => {
   useEffect(() => {
     // start timer when questions loaded or currentIndex changes
     if (questions.length > 0) {
-      const initial = questions[currentIndex]?.timeLeftSeconds ?? secondsLeft ?? ONE_QUESTION_SECONDS;
-      startTimer(initial);
+      // If we just restored from localStorage, prefer persisted secondsLeft for the
+      // current question so refresh doesn't reset the countdown to the question's
+      // full allotted time. Only use restored seconds once.
+      if (restoredRef.current) {
+        startTimer(secondsLeft, currentIndex);
+        restoredRef.current = false;
+      } else {
+        const qSec = questions[currentIndex]?.timeLeftSeconds;
+        const initial = qSec && qSec > 0 ? qSec : (secondsLeft && secondsLeft > 0 ? secondsLeft : ONE_QUESTION_SECONDS);
+        // pass currentIndex so immediate timeouts target the correct question index
+        startTimer(initial, currentIndex);
+      }
     }
     return () => stopTimer();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -59,21 +78,26 @@ const QuizRun = () => {
     localStorage.setItem(storageKey(applicantId), JSON.stringify(toStore));
   }, [questions, currentIndex, secondsLeft, totalQuestions, applicantId]);
 
-  const startTimer = (initialSeconds = secondsLeft) => {
+  const startTimer = (initialSeconds = secondsLeft, forIndex = null) => {
     // clear any existing timers
     stopTimer();
+    // protect against 0 or negative values sent by server; default to ONE_QUESTION_SECONDS
+    const safeInitial = initialSeconds && initialSeconds > 0 ? initialSeconds : ONE_QUESTION_SECONDS;
     // set initial seconds
-    setSecondsLeft(initialSeconds);
+    setSecondsLeft(safeInitial);
 
     // visual countdown interval
     timerRef.current = setInterval(() => {
       setSecondsLeft((s) => Math.max(0, s - 1));
     }, 1000);
 
-    // schedule auto-submit once after initialSeconds
+    // schedule auto-submit once after safeInitial
     submitTimeoutRef.current = setTimeout(() => {
-      if (!submittingRef.current) handleAutoSubmit();
-    }, initialSeconds * 1000);
+      if (!submittingRef.current) {
+        const idx = forIndex != null ? forIndex : currentIndex;
+        handleAutoSubmit(idx);
+      }
+    }, safeInitial * 1000);
   };
 
   const stopTimer = () => {
@@ -87,10 +111,10 @@ const QuizRun = () => {
     }
   };
 
-  const handleAutoSubmit = async () => {
+  const handleAutoSubmit = async (indexParam = null) => {
     // send selected option if user picked one; otherwise send null
     const optionToSend = selectedOptionRef.current == null ? null : selectedOptionRef.current;
-    await submitAnswer(optionToSend);
+    await submitAnswer(optionToSend, indexParam);
   };
 
   // helper to normalize server nextQuestion
@@ -100,20 +124,21 @@ const QuizRun = () => {
       id: nextQuestion.id,
       text: nextQuestion.text || '',
       order: nextQuestion.order ?? (questions.length + 1),
-      timeLeftSeconds: nextQuestion.timeLeftSeconds ?? ONE_QUESTION_SECONDS,
+      timeLeftSeconds: nextQuestion.timeLeftSeconds && nextQuestion.timeLeftSeconds > 0 ? nextQuestion.timeLeftSeconds : ONE_QUESTION_SECONDS,
       totalQuestions: nextQuestion.totalQuestions ?? null,
       options: (nextQuestion.options || []).map((o) => ({ id: o.id, text: o.text || '' })),
     };
   };
 
-  const submitAnswer = async (optionId) => {
+  const submitAnswer = async (optionId, indexParam = null) => {
     // prevent duplicate concurrent submissions
     if (submittingRef.current) return;
     submittingRef.current = true;
     stopTimer();
     setLoading(true);
     setError('');
-    const question = questions[currentIndex];
+    const idx = indexParam != null ? indexParam : currentIndex;
+    const question = questions[idx];
 
     try {
       // send null for empty
@@ -135,12 +160,15 @@ const QuizRun = () => {
         if (nq.totalQuestions && !totalQuestions) {
           setTotalQuestions(nq.totalQuestions);
         }
+        // compute index for the new question
+        const nextIndex = idx + 1;
         setQuestions((prev) => [...prev, nq]);
-        setCurrentIndex((prev) => prev + 1);
+        setCurrentIndex(nextIndex);
         setSelectedOptionId(null);
         selectedOptionRef.current = null;
         setSecondsLeft(nq.timeLeftSeconds);
-        startTimer(nq.timeLeftSeconds);
+        // start timer for the new question and pass its index so immediate timeouts target it
+        startTimer(nq.timeLeftSeconds, nextIndex);
       } else if (isFinished) {
         // server says finished. If it returned results/finishResult, use them.
         const resultsCandidate = resp.results || resp.finishResult || resp;
@@ -164,14 +192,14 @@ const QuizRun = () => {
         }
       } else {
         // fallback: try to advance locally
-        const next = currentIndex + 1;
+        const next = idx + 1;
         if (next < questions.length) {
           setCurrentIndex(next);
           setSelectedOptionId(null);
           selectedOptionRef.current = null;
           const nextSecs = questions[next].timeLeftSeconds ?? ONE_QUESTION_SECONDS;
           setSecondsLeft(nextSecs);
-          startTimer(nextSecs);
+          startTimer(nextSecs, next);
         } else {
           // final fallback: call finish
           await finishTest();
@@ -179,16 +207,16 @@ const QuizRun = () => {
       }
     } catch (err) {
       console.error('Submit error', err);
-      setError(err.response?.data?.message || 'Cavab göndərilərkən xəta oldu.');
+      setError(getErrorDetail(err) || 'Cavab göndərilərkən xəta oldu.');
       // try to continue locally
-      const next = currentIndex + 1;
+      const next = idx + 1;
       if (next < questions.length) {
         setCurrentIndex(next);
         setSelectedOptionId(null);
         selectedOptionRef.current = null;
         const nextSecs = questions[next].timeLeftSeconds ?? ONE_QUESTION_SECONDS;
         setSecondsLeft(nextSecs);
-        startTimer(nextSecs);
+        startTimer(nextSecs, next);
       }
     } finally {
       setLoading(false);
@@ -208,7 +236,7 @@ const QuizRun = () => {
       navigate(`/quiz/${applicantId}/finished`, { state: { results } });
     } catch (err) {
       console.error('Finish error', err);
-      setError(err.response?.data?.message || 'Test bitirilmədi.');
+      setError(getErrorDetail(err) || 'Test bitirilmədi.');
     } finally {
       setLoading(false);
     }
@@ -283,7 +311,7 @@ const QuizRun = () => {
               <div className="flex justify-between items-center">
                 <div className="text-sm text-gray-500">Seçim etdikdən sonra "Göndər" düyməsi ilə davam edin. Vaxt bitərsə sistem avtomatik göndərəcək.</div>
                 <div className="flex items-center space-x-2">
-                  <button onClick={() => submitAnswer(selectedOptionRef.current == null ? null : selectedOptionRef.current)} disabled={loading} className="px-4 py-2 cursor-pointer bg-green-600 text-white rounded-md flex items-center space-x-2">
+                  <button onClick={() => submitAnswer(selectedOptionRef.current == null ? null : selectedOptionRef.current, currentIndex)} disabled={loading} className="px-4 py-2 cursor-pointer bg-green-600 text-white rounded-md flex items-center space-x-2">
                     {loading ? (<><Loader className="w-4 h-4 animate-spin" /><span>Göndərilir...</span></>) : <span>Göndər</span>}
                   </button>
                 </div>

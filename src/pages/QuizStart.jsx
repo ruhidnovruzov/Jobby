@@ -25,6 +25,11 @@ const QuizStart = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  const getErrorDetail = (err) => {
+    if (!err) return null;
+    return err.response?.data?.detail || err.response?.data?.message || err.message || null;
+  };
+
   const startTest = async () => {
     setError('');
     setLoading(true);
@@ -49,7 +54,7 @@ const QuizStart = () => {
       navigate(`/quiz/${applicantId}/run`);
     } catch (err) {
       console.error('Start test error', err);
-      setError(err.response?.data?.message || 'Test başlatılarkən xəta baş verdi.');
+      setError(getErrorDetail(err) || 'Test başlatılarkən xəta baş verdi.');
     } finally {
       setLoading(false);
     }
