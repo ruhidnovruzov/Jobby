@@ -33,14 +33,17 @@ axiosInstance.interceptors.response.use(
     if (error.response && error.response.status === 401) {
       // Login zamanı yanlış credential 401 qaytara bilər — bu halda refresh/yönləndirmə etmə
       const requestUrl: string | undefined = error?.config?.url;
-      if (requestUrl && requestUrl.includes('/api/auth/login')) {
+      // axios config.url may be '/auth/login' or '/api/auth/login' depending on how the request was made.
+      // If this error originates from a login request, don't perform a redirect here — let the caller handle the error
+      if (requestUrl && (requestUrl.includes('/auth/login') || requestUrl.includes('/api/auth/login'))) {
         return Promise.reject(error);
       }
 
-      // Tokeni sil və istifadəçini /admin-login-ə yönləndir
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      window.location.href = '/admin-login';
+  // Tokeni sil və istifadəçini admin-login səhifəsinə yönləndir
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+  // Router basename is '/vacancy/', ensure redirect includes that base so the client route resolves correctly
+  window.location.href = '/vacancy/admin-login';
     }
     return Promise.reject(error);
   }

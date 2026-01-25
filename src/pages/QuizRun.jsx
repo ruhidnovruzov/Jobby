@@ -44,8 +44,11 @@ const QuizRun = () => {
   }, [applicantId]);
 
   useEffect(() => {
-    // start timer when questions loaded
-    if (questions.length > 0) startTimer();
+    // start timer when questions loaded or currentIndex changes
+    if (questions.length > 0) {
+      const initial = questions[currentIndex]?.timeLeftSeconds ?? secondsLeft ?? ONE_QUESTION_SECONDS;
+      startTimer(initial);
+    }
     return () => stopTimer();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [questions, currentIndex]);
@@ -137,7 +140,7 @@ const QuizRun = () => {
         setSelectedOptionId(null);
         selectedOptionRef.current = null;
         setSecondsLeft(nq.timeLeftSeconds);
-        startTimer();
+        startTimer(nq.timeLeftSeconds);
       } else if (isFinished) {
         // server says finished. If it returned results/finishResult, use them.
         const resultsCandidate = resp.results || resp.finishResult || resp;
@@ -166,8 +169,9 @@ const QuizRun = () => {
           setCurrentIndex(next);
           setSelectedOptionId(null);
           selectedOptionRef.current = null;
-          setSecondsLeft(questions[next].timeLeftSeconds ?? ONE_QUESTION_SECONDS);
-          startTimer();
+          const nextSecs = questions[next].timeLeftSeconds ?? ONE_QUESTION_SECONDS;
+          setSecondsLeft(nextSecs);
+          startTimer(nextSecs);
         } else {
           // final fallback: call finish
           await finishTest();
@@ -182,8 +186,9 @@ const QuizRun = () => {
         setCurrentIndex(next);
         setSelectedOptionId(null);
         selectedOptionRef.current = null;
-        setSecondsLeft(questions[next].timeLeftSeconds ?? ONE_QUESTION_SECONDS);
-        startTimer();
+        const nextSecs = questions[next].timeLeftSeconds ?? ONE_QUESTION_SECONDS;
+        setSecondsLeft(nextSecs);
+        startTimer(nextSecs);
       }
     } finally {
       setLoading(false);

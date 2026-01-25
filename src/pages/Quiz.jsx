@@ -54,12 +54,12 @@ const Quiz = () => {
                                         id: q.id,
                                         text: q.text || '',
                                         order: q.order ?? 1,
-                                        timeLeftSeconds: q.timeLeftSeconds ?? ONE_QUESTION_SECONDS,
+                                        timeLeftSeconds: q.timeLeftSeconds && q.timeLeftSeconds > 0 ? q.timeLeftSeconds : ONE_QUESTION_SECONDS,
                                         options: (q.options || []).map((o) => ({ id: o.id, text: o.text || '' })),
                                     }));
                                     setQuestions(normalized);
                                     // set initial secondsLeft from first question if available
-                                    const initialSeconds = normalized.length > 0 ? (normalized[0].timeLeftSeconds || ONE_QUESTION_SECONDS) : ONE_QUESTION_SECONDS;
+                                    const initialSeconds = normalized.length > 0 ? (normalized[0].timeLeftSeconds && normalized[0].timeLeftSeconds > 0 ? normalized[0].timeLeftSeconds : ONE_QUESTION_SECONDS) : ONE_QUESTION_SECONDS;
                                     setSecondsLeft(initialSeconds);
                                     setTestStarted(true);
                                     setCurrentIndex(0);
@@ -121,14 +121,14 @@ const Quiz = () => {
                     id: nextQuestion.id,
                     text: nextQuestion.text || '',
                     order: nextQuestion.order ?? (questions.length + 1),
-                    timeLeftSeconds: nextQuestion.timeLeftSeconds || ONE_QUESTION_SECONDS,
+                    timeLeftSeconds: nextQuestion.timeLeftSeconds && nextQuestion.timeLeftSeconds > 0 ? nextQuestion.timeLeftSeconds : ONE_QUESTION_SECONDS,
                     options: (nextQuestion.options || []).map((o) => ({ id: o.id, text: o.text || '' })),
                 };
                 // append next question and advance to it
                 setQuestions((prev) => [...prev, nq]);
                 setCurrentIndex((prev) => prev + 1);
                 setSelectedOptionId(null);
-                setSecondsLeft(nq.timeLeftSeconds);
+                setSecondsLeft(nq.timeLeftSeconds && nq.timeLeftSeconds > 0 ? nq.timeLeftSeconds : ONE_QUESTION_SECONDS);
                 startTimer();
             } else if (isFinished) {
                 // server indicates test finished; use results if present or call finishTest
@@ -145,7 +145,7 @@ const Quiz = () => {
                 if (next < questions.length) {
                     setCurrentIndex(next);
                     setSelectedOptionId(null);
-                    setSecondsLeft(questions[next].timeLeftSeconds ?? ONE_QUESTION_SECONDS);
+                    setSecondsLeft(questions[next].timeLeftSeconds && questions[next].timeLeftSeconds > 0 ? questions[next].timeLeftSeconds : ONE_QUESTION_SECONDS);
                     startTimer();
                 } else {
                     await finishTest();
@@ -159,7 +159,7 @@ const Quiz = () => {
             if (next < questions.length) {
                 setCurrentIndex(next);
                 setSelectedOptionId(null);
-                setSecondsLeft(questions[next].timeLeftSeconds ?? ONE_QUESTION_SECONDS);
+                setSecondsLeft(questions[next].timeLeftSeconds && questions[next].timeLeftSeconds > 0 ? questions[next].timeLeftSeconds : ONE_QUESTION_SECONDS);
                 startTimer();
             }
         } finally {
@@ -347,11 +347,11 @@ const Quiz = () => {
                     
                     <div className="mt-6 text-center">
                         <button 
-                            onClick={() => navigate('/vacancy/')} 
-                            className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors shadow-md"
-                        >
-                            Ana Səhifəyə Qayıt
-                        </button>
+    onClick={() => navigate('/')} 
+    className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors shadow-md"
+>
+    Ana Səhifəyə Qayıt
+</button>
                     </div>
                 </div>
             </div>

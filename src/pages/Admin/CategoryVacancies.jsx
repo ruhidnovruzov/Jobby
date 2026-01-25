@@ -175,7 +175,7 @@ const CategoryVacancies = () => {
                             </span>
                           ) : (
                             <span className="inline-block bg-gray-100 text-gray-800 text-xs font-semibold px-3 py-1 rounded-full">
-                              Passiv
+                              Deaktiv
                             </span>
                           )}
                         </td>

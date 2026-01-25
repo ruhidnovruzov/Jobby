@@ -13,7 +13,7 @@ const normalizeQuestions = (raw) => {
     id: q.id,
     text: q.text || '',
     order: q.order ?? 1,
-    timeLeftSeconds: q.timeLeftSeconds ?? ONE_QUESTION_SECONDS,
+    timeLeftSeconds: q.timeLeftSeconds && q.timeLeftSeconds > 0 ? q.timeLeftSeconds : ONE_QUESTION_SECONDS,
     options: (q.options || []).map((o) => ({ id: o.id, text: o.text || '' })),
   }));
 };
@@ -41,7 +41,7 @@ const QuizStart = () => {
       const initial = {
         questions,
         currentIndex: 0,
-        secondsLeft: questions.length > 0 ? (questions[0].timeLeftSeconds || ONE_QUESTION_SECONDS) : ONE_QUESTION_SECONDS,
+        secondsLeft: questions.length > 0 ? (questions[0].timeLeftSeconds && questions[0].timeLeftSeconds > 0 ? questions[0].timeLeftSeconds : ONE_QUESTION_SECONDS) : ONE_QUESTION_SECONDS,
         totalQuestions, // totalQuestions değerini kaydet
       };
       localStorage.setItem(storageKey(applicantId), JSON.stringify(initial));

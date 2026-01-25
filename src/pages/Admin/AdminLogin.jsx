@@ -38,14 +38,16 @@ const AdminLogin = () => {
       navigate('/admin-dashboard');
     } catch (err) {
       console.error('Login xətası:', err);
-      setError(
-        err.response?.data?.message ||
-        err.message ||
-        'Email və ya parol yanlışdır'
-      );
+      // Prefer server-provided detail field, then message
+      const detail = err.response?.data?.detail || err.response?.data?.message || err.message || 'Email və ya parol yanlışdır';
+      // Səhifə yenilənmir, sadəcə State dəyişir və UI-da Alert görünür
+      setError(detail);
+
+      // İSTƏYƏ BAĞLI: Xəta zamanı parolu təmizləmək olar, amma email qalsın
+      // setPassword(''); 
     } finally {
-      setLoading(false);
-    }
+  setLoading(false);
+}
   };
 
   return (

@@ -307,7 +307,7 @@ const VacancyId = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
                   <div>
                     <strong>Status:</strong>
-                    <div>{vacancy?.isActive ? 'Aktiv' : 'Passiv'}</div>
+                    <div>{vacancy?.isActive ? 'Aktiv' : 'Deaktiv'}</div>
                   </div>
                   <div>
                     <strong>Yaranma Tarixi:</strong>

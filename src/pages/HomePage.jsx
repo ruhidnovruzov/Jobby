@@ -15,6 +15,9 @@ const HomePage = () => {
         columnName: 'createdDate',
         orderBy: 'desc'
     });
+    const [pageNumber, setPageNumber] = useState(1);
+    const [pageSize, setPageSize] = useState(10);
+    const [totalCount, setTotalCount] = useState(null);
     const debounceTimer = useRef(null);
 
     const handleFilterChange = (e) => {
@@ -26,7 +29,7 @@ const HomePage = () => {
         return category?.name || 'Bilinməyən';
     };
 
-    const fetchJobs = async (filterValue = '', categoryId = '', sortColumn = 'createdDate', sortOrder = 'desc') => {
+    const fetchJobs = async (filterValue = '', categoryId = '', sortColumn = 'createdDate', sortOrder = 'desc', page = pageNumber, size = pageSize) => {
         try {
             setLoading(true);
             setError('');
@@ -41,11 +44,18 @@ const HomePage = () => {
             }
             params.push(`ColumnName=${encodeURIComponent(sortColumn)}`);
             params.push(`OrderBy=${encodeURIComponent(sortOrder)}`);
+            // pagination
+            params.push(`PageNumber=${encodeURIComponent(page)}`);
+            params.push(`PageSize=${encodeURIComponent(size)}`);
             
             url += params.join('&');
             
             const response = await get(url);
-            setJobs(response.data?.data || []);
+            // try to extract list and total count from multiple possible response shapes
+            const dataList = response.data?.data || response.data || [];
+            setJobs(Array.isArray(dataList) ? dataList : (dataList.items || []));
+            const total = response.data?.meta?.totalCount || response.data?.total || response.data?.meta?.total || response.data?.totalCount || response.data?.count || null;
+            setTotalCount(total);
             setError('');
         } catch (err) {
             console.error('İş elanları çəkilərkən xəta:', err);
@@ -77,7 +87,9 @@ const HomePage = () => {
         setLoading(true);
 
         debounceTimer.current = setTimeout(() => {
-            fetchJobs(filters.filterValue, filters.categoryId, filters.columnName, filters.orderBy);
+            // whenever filters change, reset to first page
+            setPageNumber(1);
+            fetchJobs(filters.filterValue, filters.categoryId, filters.columnName, filters.orderBy, 1, pageSize);
         }, 1000);
 
         return () => {
@@ -94,7 +106,8 @@ const HomePage = () => {
         if (debounceTimer.current) {
             clearTimeout(debounceTimer.current);
         }
-        fetchJobs(filters.filterValue, filters.categoryId, filters.columnName, filters.orderBy);
+        setPageNumber(1);
+        fetchJobs(filters.filterValue, filters.categoryId, filters.columnName, filters.orderBy, 1, pageSize);
     };
 
     if (loading) {
@@ -281,7 +294,58 @@ const HomePage = () => {
                         </div>
                     </div>
                     <div className="md:p-8 p-4">
-                        <JobList jobs={jobs} categories={categories} getCategoryName={getCategoryName} loading={loading} error={error} onRetry={() => fetchJobs(filters.filterValue, filters.categoryId, filters.columnName, filters.orderBy)} />
+                            <JobList jobs={jobs} categories={categories} getCategoryName={getCategoryName} loading={loading} error={error} onRetry={() => fetchJobs(filters.filterValue, filters.categoryId, filters.columnName, filters.orderBy, pageNumber, pageSize)} />
+                            {/* Pagination controls */}
+                            <div className="mt-6 flex items-center justify-between">
+                                <div className="text-sm text-gray-600">
+                                    {totalCount != null ? (
+                                        <span>Göstərilir {Math.min((pageNumber-1)*pageSize+1, totalCount)} - {Math.min(pageNumber*pageSize, totalCount)} / {totalCount}</span>
+                                    ) : (
+                                        <span>{jobs.length} nəticə</span>
+                                    )}
+                                </div>
+
+                                <div className="flex items-center space-x-2">
+                                    <button disabled={pageNumber <= 1} onClick={() => { const prev = Math.max(1, pageNumber-1); setPageNumber(prev); fetchJobs(filters.filterValue, filters.categoryId, filters.columnName, filters.orderBy, prev, pageSize); }} className={`px-3 py-1 rounded ${pageNumber <= 1 ? 'bg-gray-200 text-gray-400' : 'bg-white border'}`}>
+                                        Əvvəlki
+                                    </button>
+
+                                    {/* simple page numbers rendering when totalCount known */}
+                                    {totalCount != null ? (
+                                        (() => {
+                                            const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
+                                            const pages = [];
+                                            const start = Math.max(1, pageNumber - 2);
+                                            const end = Math.min(totalPages, pageNumber + 2);
+                                            for (let p = start; p <= end; p++) pages.push(p);
+                                            return (
+                                                <div className="flex items-center space-x-1">
+                                                    {start > 1 && <button onClick={() => { setPageNumber(1); fetchJobs(filters.filterValue, filters.categoryId, filters.columnName, filters.orderBy, 1, pageSize); }} className="px-2 py-1 border rounded">1</button>}
+                                                    {start > 2 && <span className="px-2">...</span>}
+                                                    {pages.map(p => (
+                                                        <button key={p} onClick={() => { setPageNumber(p); fetchJobs(filters.filterValue, filters.categoryId, filters.columnName, filters.orderBy, p, pageSize); }} className={`px-3 py-1 rounded ${p === pageNumber ? 'bg-blue-600 text-white' : 'bg-white border'}`}>{p}</button>
+                                                    ))}
+                                                    {end < totalPages-1 && <span className="px-2">...</span>}
+                                                    {end < totalPages && <button onClick={() => { setPageNumber(totalPages); fetchJobs(filters.filterValue, filters.categoryId, filters.columnName, filters.orderBy, totalPages, pageSize); }} className="px-2 py-1 border rounded">{totalPages}</button>}
+                                                </div>
+                                            );
+                                        })()
+                                    ) : (
+                                        <div className="text-sm text-gray-500">&nbsp;</div>
+                                    )}
+
+                                    <button disabled={totalCount != null ? pageNumber >= Math.ceil(totalCount / pageSize) : jobs.length < pageSize} onClick={() => { const next = pageNumber + 1; setPageNumber(next); fetchJobs(filters.filterValue, filters.categoryId, filters.columnName, filters.orderBy, next, pageSize); }} className={`px-3 py-1 rounded ${totalCount != null ? (pageNumber >= Math.ceil(totalCount / pageSize) ? 'bg-gray-200 text-gray-400' : 'bg-white border') : (jobs.length < pageSize ? 'bg-gray-200 text-gray-400' : 'bg-white border')}`}>
+                                        Növbəti
+                                    </button>
+
+                                    <select value={pageSize} onChange={(e) => { const s = Number(e.target.value); setPageSize(s); setPageNumber(1); fetchJobs(filters.filterValue, filters.categoryId, filters.columnName, filters.orderBy, 1, s); }} className="ml-3 px-2 py-1 border rounded">
+                                        <option value={5}>5</option>
+                                        <option value={10}>10</option>
+                                        <option value={20}>20</option>
+                                        <option value={50}>50</option>
+                                    </select>
+                                </div>
+                            </div>
                     </div>
                 </div>
             </div>

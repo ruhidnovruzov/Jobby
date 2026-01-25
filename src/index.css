@@ -1,1 +1,8 @@
 @import "tailwindcss";
+
+/* Ensure all buttons show pointer cursor when interactable.
+	 This avoids having to add `cursor-pointer` classes to every button.
+	 Disabled buttons keep the default cursor. */
+button:not([disabled]) {
+	cursor: pointer;
+}

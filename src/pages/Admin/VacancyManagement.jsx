@@ -13,7 +13,7 @@ const VacancyManagement = () => {
   const [success, setSuccess] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
-  const [formData, setFormData] = useState({ categoryId: '', title: '', description: '' });
+  const [formData, setFormData] = useState({ categoryId: '', title: '', description: '', isActive: true });
   const [submitting, setSubmitting] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [filterValue, setFilterValue] = useState('');
@@ -85,6 +85,7 @@ const VacancyManagement = () => {
         categoryId: parseInt(formData.categoryId),
         title: formData.title.trim(),
         description: formData.description.trim(),
+        isActive: !!formData.isActive,
       };
 
       if (editingId) {
@@ -115,9 +116,21 @@ const VacancyManagement = () => {
       categoryId: vacancy.categoryId || '',
       title: vacancy.title,
       description: vacancy.description,
+      isActive: vacancy.isActive === undefined ? true : !!vacancy.isActive,
     });
     setEditingId(vacancy.id);
     setShowForm(true);
+  };
+
+  const handleToggleActive = async (vacancy) => {
+    try {
+      const res = await put(`/vacancies/${vacancy.id}`, { isActive: !vacancy.isActive });
+      setSuccess(`Vakansiya ${vacancy.title} üçün aktivlik yeniləndi.`);
+      await fetchVacancies(filterValue, filterCategoryId, columnName, orderBy);
+    } catch (err) {
+      console.error('Aktivlik dəyişmə xətası:', err);
+      setError(err.response?.data?.message || 'Aktivlik dəyişdirilə bilmədi.');
+    }
   };
 
   const handleDelete = async (id) => {
@@ -339,6 +352,20 @@ const VacancyManagement = () => {
                   />
                 </div>
 
+                {/* Aktiv / Deaktiv */}
+                <div className="flex items-center space-x-3">
+                  <input
+                    id="isActive"
+                    name="isActive"
+                    type="checkbox"
+                    checked={!!formData.isActive}
+                    onChange={(e) => setFormData(prev => ({ ...prev, isActive: e.target.checked }))}
+                    disabled={submitting}
+                    className="h-4 w-4 text-blue-600 border-gray-300 rounded"
+                  />
+                  <label htmlFor="isActive" className="text-sm text-gray-700">Aktivdir</label>
+                </div>
+
                 {/* Buttons */}
                 <div className="flex space-x-3">
                   <button
@@ -432,6 +459,7 @@ const VacancyManagement = () => {
                           <span className="inline-block bg-blue-100 text-blue-800 text-xs font-semibold px-3 py-1 rounded-full">
                             {getCategoryName(vacancy.categoryId)}
                           </span>
+                         
                         </td>
                         <td className="px-6 py-4 text-gray-600">
                           {formatDate(vacancy.createdDate)}
