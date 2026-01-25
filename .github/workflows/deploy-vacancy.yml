@@ -3,7 +3,7 @@ name: Deploy Vacancy Frontend
 on:
   push:
     branches:
-      - main   # əgər branch adın fərqlidirsə dəyiş
+      - main   # əsas branch-in adını düzgün yaz
 
 jobs:
   build-deploy:
@@ -18,6 +18,10 @@ jobs:
         with:
           node-version: 18
 
+      - name: Stop Nginx temporarily
+        run: |
+          Stop-Process -Name nginx -Force
+
       - name: Install dependencies
         run: npm install
 
@@ -28,3 +32,7 @@ jobs:
         run: |
           Remove-Item -Recurse -Force C:\nginx\html\vacancy\*
           Copy-Item -Recurse dist\* C:\nginx\html\vacancy\
+
+      - name: Start Nginx again
+        run: |
+          Start-Process "C:\nginx\nginx.exe"
